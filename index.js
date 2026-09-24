@@ -3,37 +3,22 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware de CORS y JSON
-app.use(cors({
-    origin: '*',
-    methods: ['POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type']
-}));
+app.use(cors());
 app.use(express.json());
 
-// Ruta de verificación GET
 app.get('/api/consulta', (req, res) => {
-    return res.status(200).json({ 
-        status: "Activo", 
-        message: "El servidor está listo para recibir consultas." 
-    });
+    return res.json({ status: "Activo", message: "Servidor funcionando correctamente." });
 });
 
-// Ruta POST principal que recibe los datos de tu frontend
-app.post('/api/consulta', async (req, res) => {
+app.post('/api/consulta', (req, res) => {
     try {
-        const { tipoDocumento, numeroDocumento, fechaNacimiento } = req.body;
-
-        console.log(`Consulta recibida -> Tipo: ${tipoDocumento}, Documento: ${numeroDocumento}, Fecha: ${fechaNacimiento}`);
+        const { tipoDocumento, numeroDocumento, fechaNacimiento } = req.body || {};
 
         if (!tipoDocumento || !numeroDocumento) {
-            return res.status(400).json({ 
-                error: "Faltan datos obligatorios para realizar la consulta." 
-            });
+            return res.status(400).json({ error: "Faltan datos obligatorios." });
         }
 
-        // Respuesta simulada estructurada exactamente como la espera tu index.html
-        return res.status(200).json({
+        return res.json({
             exito: true,
             nombres: "ESTUDIANTE EJEMPLO ICFES",
             examenes: [
@@ -53,13 +38,10 @@ app.post('/api/consulta', async (req, res) => {
                 }
             ]
         });
-
-    } catch (error) {
-        console.error("Error interno en el servidor:", error);
-        return res.status(500).json({ 
-            error: "Ocurrió un error interno al procesar la solicitud en el servidor." 
-        });
+    } catch (err) {
+        return res.status(500).json({ error: "Error interno en el servidor." });
     }
 });
 
+// Exportación requerida para Vercel Serverless Functions
 module.exports = app;
